@@ -104,6 +104,7 @@ class Platformer extends Phaser.Scene {
         // TODO: use this physics.add.collider to manage whether or not soft platforms should have collision based on whether or not the player is below them or not
         // Enable collision handling
         this.physics.add.collider(my.sprite.player, this.groundLayer);
+        var bridgeCollider = this.physics.add.collider(my.sprite.player, this.bridgeLayer);
 
         // create bool to manage the game ending
         my.sprite.player.dead = false;
@@ -122,6 +123,7 @@ class Platformer extends Phaser.Scene {
             this.coinSound.play();
             obj2.destroy(); // remove coin on overlap
             this.bridgeLayer.visible = false;
+            bridgeCollider.active = false;
         });
 
         this.physics.add.overlap(my.sprite.player, this.spikeGroup, (obj1, obj2) => {
@@ -183,6 +185,8 @@ class Platformer extends Phaser.Scene {
         my.sprite.player.setMaxVelocity(this.MAXVEL, 10000);
 
         this.textDisplayed = false;
+
+        this.helpText = this.add.text(16, 25, 'If you fall, press R to restart!', { fontSize: '16px', color: '#FFF' });
     }
 
     update() {
