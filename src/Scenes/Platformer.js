@@ -187,6 +187,7 @@ class Platformer extends Phaser.Scene {
         this.textDisplayed = false;
 
         this.helpText = this.add.text(16, 25, 'If you fall, press R to restart!', { fontSize: '16px', color: '#FFF' });
+        this.helpText.visible = true;
     }
 
     update() {
