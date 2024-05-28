@@ -8,7 +8,7 @@ class Platformer extends Phaser.Scene {
         this.ACCELERATION = 300;
         this.DRAG = 500;    // DRAG < ACCELERATION = icy slide
         this.physics.world.gravity.y = 1500;
-        this.JUMP_VELOCITY = -450;
+        this.JUMP_VELOCITY = -500;
         this.PARTICLE_VELOCITY = 30;
         this.SCALE = 2.55;
         this.MAXVEL = 200;
@@ -71,17 +71,25 @@ class Platformer extends Phaser.Scene {
             frame: 0
         });
 
+        this.gems = this.map.createFromObjects("Powerups", {
+            name: "gem",
+            key: "tilemap_sheet",
+            frame: 82
+        });
+
         // Since createFromObjects returns an array of regular Sprites, we need to convert 
         // them into Arcade Physics sprites (STATIC_BODY, so they don't move) 
         this.physics.world.enable(this.coins, Phaser.Physics.Arcade.STATIC_BODY);
         this.physics.world.enable(this.spikes, Phaser.Physics.Arcade.STATIC_BODY);
         this.physics.world.enable(this.ends, Phaser.Physics.Arcade.STATIC_BODY);
+        this.physics.world.enable(this.gems, Phaser.Physics.Arcade.STATIC_BODY);
 
         // Create a Phaser group out of the array this.coins
         // This will be used for collision detection below.
         this.coinGroup = this.add.group(this.coins);
         this.spikeGroup = this.add.group(this.spikes);
         this.endGroup = this.add.group(this.ends);
+        this.gemGroup = this.add.group(this.gems);
 
         // set up player avatar
         my.sprite.player = this.physics.add.sprite(30, 150, "tilemap_sheet", 300);
@@ -101,6 +109,8 @@ class Platformer extends Phaser.Scene {
         // setup the ability to stop moving the player
         my.sprite.player.moves = true;
 
+        my.sprite.player.canDoubleJump = false;
+
         // Handle collision detection with coins
         this.physics.add.overlap(my.sprite.player, this.coinGroup, (obj1, obj2) => {
             this.coinSound.play();
@@ -118,6 +128,13 @@ class Platformer extends Phaser.Scene {
             this.gameWon = true;
             this.gameOver = true;
             this.winSound.play();
+        });
+
+        this.physics.add.overlap(my.sprite.player, this.gemGroup, (obj1, obj2) => {
+            this.coinSound.play();
+            obj2.destroy(); // remove gem on overlap
+            my.sprite.player.canDoubleJump = true;
+            this.JUMP_VELOCITY = -400;
         });
 
         // set up Phaser-provided cursor key input
@@ -271,7 +288,7 @@ class Platformer extends Phaser.Scene {
             this.jumpSound.play();
             my.sprite.player.hasDoubleJump = true;
         }
-        else if(!my.sprite.player.body.blocked.down && Phaser.Input.Keyboard.JustDown(cursors.up) && my.sprite.player.moves && my.sprite.player.hasDoubleJump)
+        else if(!my.sprite.player.body.blocked.down && Phaser.Input.Keyboard.JustDown(cursors.up) && my.sprite.player.moves && my.sprite.player.hasDoubleJump && my.sprite.player.canDoubleJump)
         {
             my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
             this.jumpSound.play();
