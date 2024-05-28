@@ -29,9 +29,13 @@ class Platformer extends Phaser.Scene {
         this.detailLayer = this.map.createLayer("Details", this.tileset, 0, 0);
         // no longer need spike layer as they are now objects
         //this.spikeLayer = this.map.createLayer("Spikes", this.tileset, 0, 0);
+        this.bridgeLayer = this.map.createLayer("Bridge", this.tileset, 0, 0);
 
         // Make it collidable
         this.groundLayer.setCollisionByProperty({
+            collides: true
+        });
+        this.bridgeLayer.setCollisionByProperty({
             collides: true
         });
 
@@ -111,10 +115,13 @@ class Platformer extends Phaser.Scene {
 
         my.sprite.player.canDoubleJump = false;
 
+        this.bridgeLayer.visible = true;
+
         // Handle collision detection with coins
         this.physics.add.overlap(my.sprite.player, this.coinGroup, (obj1, obj2) => {
             this.coinSound.play();
             obj2.destroy(); // remove coin on overlap
+            this.bridgeLayer.visible = false;
         });
 
         this.physics.add.overlap(my.sprite.player, this.spikeGroup, (obj1, obj2) => {
