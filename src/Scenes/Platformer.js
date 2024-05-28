@@ -8,7 +8,7 @@ class Platformer extends Phaser.Scene {
         this.ACCELERATION = 300;
         this.DRAG = 500;    // DRAG < ACCELERATION = icy slide
         this.physics.world.gravity.y = 1500;
-        this.JUMP_VELOCITY = -600;
+        this.JUMP_VELOCITY = -450;
         this.PARTICLE_VELOCITY = 30;
         this.SCALE = 2.55;
         this.MAXVEL = 200;
@@ -209,7 +209,6 @@ class Platformer extends Phaser.Scene {
             // Only play smoke effect if touching the ground
 
             if (my.sprite.player.body.blocked.down) {
-
                 my.vfx.walking.start();
                 //my.sprite.player.setDragX(this.DRAG);
 
@@ -257,6 +256,11 @@ class Platformer extends Phaser.Scene {
             my.vfx.walking.stop();
         }
 
+        if (my.sprite.player.body.blocked.down && !my.sprite.player.hasDoubleJump)
+        {
+            my.sprite.player.hasDoubleJump = true;
+        }
+
         // player jump
         // note that we need body.blocked rather than body.touching b/c the former applies to tilemap tiles and the latter to the "ground"
         if(!my.sprite.player.body.blocked.down && my.sprite.player.moves) {
@@ -265,6 +269,13 @@ class Platformer extends Phaser.Scene {
         if(my.sprite.player.body.blocked.down && Phaser.Input.Keyboard.JustDown(cursors.up) && my.sprite.player.moves) {
             my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
             this.jumpSound.play();
+            my.sprite.player.hasDoubleJump = true;
+        }
+        else if(!my.sprite.player.body.blocked.down && Phaser.Input.Keyboard.JustDown(cursors.up) && my.sprite.player.moves && my.sprite.player.hasDoubleJump)
+        {
+            my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
+            this.jumpSound.play();
+            my.sprite.player.hasDoubleJump = false;
         }
 
     }
